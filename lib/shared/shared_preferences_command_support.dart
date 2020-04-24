@@ -32,16 +32,16 @@ class SharedPreferencesCommandSupport extends CommandSupport {
     final memberName = parseSymbolName(invocation.memberName);
     final commands = this.tryConverterMethodNameCommandResolver(memberName, _COMMANDS, _COMMANDS[0]);
     var key = this._methodNameCommandResolver(commands[1]);
-    key = key.substring(1, key.length);
+    key = key.substring(1, key.length).toUpperCase();
     final positionalArguments = invocation.positionalArguments;
     final namedArguments = invocation.namedArguments;
     final serializer = namedArguments[Symbol("serializer")];
     final typeArguments = invocation.typeArguments;
     switch (commands[0]) {
       case "get":
-        return this.get(key, typeArguments.isEmpty ? null : typeArguments[0], serializer);
+        return this.get(key, typeArguments?.first, serializer);
       case "set":
-        return this.set(key, positionalArguments[0], serializer);
+        return this.set(key, positionalArguments?.first, serializer);
       case "remove":
         return this.remove(key);
     }
