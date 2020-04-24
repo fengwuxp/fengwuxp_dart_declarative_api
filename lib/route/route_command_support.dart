@@ -9,13 +9,12 @@ import 'package:flutter_boost/flutter_boost.dart';
 import './route_command.dart';
 
 final _COMMANDS = [
-  RouteCommand.push.toString(),
-  RouteCommand.pop.toString(),
-  RouteCommand.popAndPush.toString(),
-  RouteCommand.popToTop.toString(),
-  RouteCommand.reLaunch.toString(),
-  RouteCommand.replace.toString(),
-  RouteCommand.switchTab.toString(),
+  RouteCommand.PUSH,
+  RouteCommand.POP,
+  RouteCommand.POP_AND_PUSH,
+  RouteCommand.POP_TO_TOP,
+  RouteCommand.RE_LAUNCH,
+  RouteCommand.REPLACE,
 ];
 
 // 跳转原生 Activity
@@ -32,13 +31,24 @@ const String FLUTTER_ROUTE_SCHEMA = "flutter://";
 class RouteCommandSupport extends CommandSupport {
   MethodNameCommandResolver _methodNameCommandResolver;
 
+  RouteCommandSupport([MethodNameCommandResolver methodNameCommandResolver]) {
+    if (methodNameCommandResolver == null) {
+      methodNameCommandResolver = toLineResolver;
+    }
+    this._methodNameCommandResolver = methodNameCommandResolver;
+  }
+
+  factory() {
+    return new RouteCommandSupport();
+  }
+
   @override
   noSuchMethod(Invocation invocation) {
     final namedArguments = invocation.namedArguments;
     final positionalArguments = invocation.positionalArguments;
     final context = positionalArguments.first;
     final memberName = parseSymbolName(invocation.memberName);
-    final commands = this.tryConverterMethodNameCommandResolver(memberName, _COMMANDS, _COMMANDS[0]);
+    final commands = this.tryConverterMethodNameCommandResolver(memberName, _COMMANDS, RouteCommand.PUSH);
 
     String pathname = namedArguments[Symbol("pathname")];
     if (!StringUtils.hasText(pathname)) {
@@ -49,7 +59,7 @@ class RouteCommandSupport extends CommandSupport {
     if (context is BuildContext) {
       var command = namedArguments[Symbol("command")];
       if (command == null) {
-        command = commands[0];
+        command = "/${commands[0]}";
       } else {
         command.toString();
       }
@@ -91,14 +101,14 @@ class RouteCommandSupport extends CommandSupport {
 //    RouteCommand.replace.toString(),
 //    RouteCommand.switchTab.toString(),
     switch (command) {
-      case "push":
+      case RouteCommand.PUSH:
         break;
-      case "popAndPush":
-      case "replace":
+      case RouteCommand.POP_AND_PUSH:
+      case RouteCommand.REPLACE:
         replace = true;
         break;
-      case "popToTop":
-      case "reLaunch":
+      case RouteCommand.POP_TO_TOP:
+      case RouteCommand.REPLACE:
         clearStack = true;
         break;
     }
