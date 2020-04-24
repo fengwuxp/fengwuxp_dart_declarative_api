@@ -19,6 +19,8 @@ dependencies:
   flutter_boost: ^1.12.13
   fengwuxp_dart_basic:
     git: git://github.com/fengwuxp/fengwuxp_dart_basic.git
+  fenguwxp_fluro:
+    git: git://github.com/fengwuxp/fenguwxp_fluro.git
   flutter_event_bus: ^0.0.2
 
 dev_dependencies:
