@@ -59,12 +59,12 @@ class RouteCommandSupport extends CommandSupport {
     if (context is BuildContext) {
       var command = namedArguments[Symbol("command")];
       if (command == null) {
-        command = "/${commands[0]}";
+        command = commands[0];
       } else {
         command.toString();
       }
 
-      return _navigateToFlutterView(context, pathname, positionalArguments, namedArguments, command);
+      return _navigateToFlutterView(context, "/$pathname", positionalArguments, namedArguments, command);
     }
 
     final isNative = namedArguments[Symbol("isNative")];
