@@ -31,15 +31,21 @@ const String FLUTTER_ROUTE_SCHEMA = "flutter://";
 class RouteCommandSupport extends CommandSupport {
   MethodNameCommandResolver _methodNameCommandResolver;
 
-  RouteCommandSupport([MethodNameCommandResolver methodNameCommandResolver]) {
+  TransitionType _defaultTransition;
+
+  RouteCommandSupport(
+      {MethodNameCommandResolver methodNameCommandResolver, TransitionType transitionType = TransitionType.native}) {
     if (methodNameCommandResolver == null) {
       methodNameCommandResolver = toLineResolver;
     }
     this._methodNameCommandResolver = methodNameCommandResolver;
+    this._defaultTransition = transitionType;
   }
 
-  factory() {
-    return new RouteCommandSupport();
+  factory(
+      {MethodNameCommandResolver methodNameCommandResolver, TransitionType transitionType = TransitionType.native}) {
+    return new RouteCommandSupport(
+        methodNameCommandResolver: methodNameCommandResolver, transitionType: transitionType);
   }
 
   @override
@@ -88,8 +94,8 @@ class RouteCommandSupport extends CommandSupport {
     Router.appRouter.pop(context);
   }
 
-  Future<T> _navigateToFlutterView<T>(
-      BuildContext context, String url, List<dynamic> parameters, Map<Symbol, dynamic> namedArguments, command) {
+  Future<T> _navigateToFlutterView<T>(BuildContext context, String url, List<dynamic> positionalArguments,
+      Map<Symbol, dynamic> namedArguments, command) {
     var replace = false;
     var clearStack = false;
 
@@ -113,13 +119,25 @@ class RouteCommandSupport extends CommandSupport {
         break;
     }
 
+    var transition = namedArguments[Symbol("transition")];
+    if (transition == null) {
+      transition = this._defaultTransition;
+    }
+    var transitionDuration = namedArguments[Symbol("transitionDuration")];
+    if (transitionDuration == null) {
+      transitionDuration = const Duration(milliseconds: 250);
+    }
+    var transitionBuilder = namedArguments[Symbol("transitionBuilder")];
+    List<dynamic> parameters = List.of(positionalArguments);
+    // 移除 context 参数
+    parameters.removeAt(0);
     return Router.appRouter.navigateTo(context, url,
         parameters: parameters,
         replace: replace,
         clearStack: clearStack,
-        transition: namedArguments[Symbol("transition")],
-        transitionDuration: namedArguments[Symbol("transitionDuration")],
-        transitionBuilder: namedArguments[Symbol("transitionBuilder")]);
+        transition: transition,
+        transitionDuration: transitionDuration,
+        transitionBuilder: transitionBuilder);
   }
 
 //  String _handleQueryParams(String uriTemplate, Map<String, dynamic> queryParams) {

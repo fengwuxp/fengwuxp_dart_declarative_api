@@ -32,16 +32,14 @@ class EventBusCommandSupport extends CommandSupport {
 
     switch (commands[0]) {
       case "send":
-        eventBus.publish(positionalArguments?.first);
-        break;
+        return eventBus.publish(positionalArguments?.first);
       case "receive":
-        eventBus.respond((result) {
+        return eventBus.respond((result) {
           var fn = positionalArguments?.first;
           if (fn != null) {
             fn(result);
           }
         });
-        break;
     }
   }
 }

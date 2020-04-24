@@ -11,7 +11,7 @@ void main() {
     });
 
     mockSharedCommandSupport.sendUserLogin(true);
-    subscription.dispose();
     mockSharedCommandSupport.sendUserLogin(true);
+    subscription.dispose();
   });
 }
