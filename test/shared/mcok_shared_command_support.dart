@@ -1,7 +1,7 @@
 import 'package:built_value/serializer.dart';
 import 'package:fengwuxp_dart_basic/src/json/built_json_serializers.dart';
-import '../../lib/shared/shared_preferences_command_support.dart';
 import 'package:fengwuxp_dart_basic/src/resolve/simple_method_name_command_resolver.dart';
+import 'package:fengwuxp_dart_declarative_api/index.dart';
 import '../built/data_model.dart';
 import '../built/serializers.dart';
 

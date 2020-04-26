@@ -1,4 +1,4 @@
-import 'package:fengwuxp_dart_declarative_api/command_support.dart';
+import 'package:fengwuxp_dart_declarative_api/src/command_support.dart';
 import 'package:fengwuxp_dart_basic/src/querystring/query_string_parser.dart';
 import 'package:fengwuxp_dart_basic/src/resolve/simple_method_name_command_resolver.dart';
 import 'package:fengwuxp_dart_basic/src/utils/symbol_parser.dart';
@@ -6,7 +6,7 @@ import 'package:fengwuxp_dart_basic/src/utils/string_utils.dart';
 import 'package:fenguwxp_fluro/fluro.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_boost/flutter_boost.dart';
-import './route_command.dart';
+import 'route_command.dart';
 
 final _COMMANDS = [
   RouteCommand.PUSH,
