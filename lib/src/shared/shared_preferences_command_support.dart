@@ -1,8 +1,5 @@
 import 'package:built_value/serializer.dart';
-import 'package:fengwuxp_dart_basic/src/resolve/simple_method_name_command_resolver.dart';
-import 'package:fengwuxp_dart_basic/src/utils/symbol_parser.dart';
-import 'package:fengwuxp_dart_basic/src/utils/string_utils.dart';
-import 'package:fengwuxp_dart_basic/src/json/built_json_serializers.dart';
+import 'package:fengwuxp_dart_basic/index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../command_support.dart';
@@ -14,23 +11,27 @@ class SharedPreferencesCommandSupport extends CommandSupport {
 
   BuiltJsonSerializers _jsonSerializers;
 
-  SharedPreferencesCommandSupport(
-      BuiltJsonSerializers jsonSerializers, MethodNameCommandResolver methodNameCommandResolver) {
+  SharedPreferencesCommandSupport(BuiltJsonSerializers jsonSerializers,
+      MethodNameCommandResolver methodNameCommandResolver) {
     this._jsonSerializers = jsonSerializers;
     this._methodNameCommandResolver = methodNameCommandResolver;
   }
 
-  factory(BuiltJsonSerializers jsonSerializers, [MethodNameCommandResolver methodNameCommandResolver]) {
+  factory(BuiltJsonSerializers jsonSerializers,
+      [MethodNameCommandResolver methodNameCommandResolver]) {
     if (methodNameCommandResolver == null) {
-      return new SharedPreferencesCommandSupport(jsonSerializers, toLineResolver);
+      return new SharedPreferencesCommandSupport(
+          jsonSerializers, toLineResolver);
     }
-    return new SharedPreferencesCommandSupport(jsonSerializers, methodNameCommandResolver);
+    return new SharedPreferencesCommandSupport(
+        jsonSerializers, methodNameCommandResolver);
   }
 
   @override
   noSuchMethod(Invocation invocation) async {
     final memberName = parseSymbolName(invocation.memberName);
-    final commands = this.tryConverterMethodNameCommandResolver(memberName, _COMMANDS, _COMMANDS[0]);
+    final commands = this.tryConverterMethodNameCommandResolver(
+        memberName, _COMMANDS, _COMMANDS[0]);
     var key = this._methodNameCommandResolver(commands[1]);
     key = key.substring(1, key.length).toUpperCase();
     final positionalArguments = invocation.positionalArguments;
@@ -64,11 +65,14 @@ class SharedPreferencesCommandSupport extends CommandSupport {
     if (value is String) {
       return prefs.setString(key, value);
     }
-    return prefs.setString(key, this._jsonSerializers.toJson(value, serializer));
+    return prefs.setString(
+        key, this._jsonSerializers.toJson(value, serializer: serializer));
   }
 
-  Future<T> getInner<T>(String methodName, {Type resultType, Serializer serializer}) async {
-    final commands = this.tryConverterMethodNameCommandResolver(methodName, _COMMANDS, _COMMANDS[0]);
+  Future<T> getInner<T>(String methodName,
+      {Type resultType, Serializer serializer}) async {
+    final commands = this.tryConverterMethodNameCommandResolver(
+        methodName, _COMMANDS, _COMMANDS[0]);
     final key = this._methodNameCommandResolver(commands[1]);
     return this.get(key, resultType, serializer);
   }
@@ -92,7 +96,8 @@ class SharedPreferencesCommandSupport extends CommandSupport {
     if (!StringUtils.hasText(result)) {
       return Future.value(null);
     }
-    return this._jsonSerializers.parseObject(result, serializer) as Future<T>;
+    return this._jsonSerializers.parseObject(result, serializer: serializer)
+        as Future<T>;
   }
 
   Future remove(String key) async {

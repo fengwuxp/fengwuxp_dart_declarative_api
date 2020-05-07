@@ -1,5 +1,4 @@
-import 'package:fengwuxp_dart_basic/src/resolve/simple_method_name_command_resolver.dart';
-import 'package:fengwuxp_dart_basic/src/utils/symbol_parser.dart';
+import 'package:fengwuxp_dart_basic/index.dart';
 import 'package:flutter_event_bus/flutter_event_bus.dart';
 
 import '../command_support.dart';
