@@ -16,7 +16,10 @@ dependencies:
   built_value: ^7.0.2
   fluro: ^1.6.3
    # https://github.com/alibaba/flutter_boost
-  flutter_boost: ^1.12.13
+  flutter_boost:
+   git:
+     url: git://github.com/alibaba/flutter_boost.git
+     ref: v3.0-beta.11
   fengwuxp_dart_basic:
     git: git://github.com/fengwuxp/fengwuxp_dart_basic.git
   fenguwxp_fluro:
