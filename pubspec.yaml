@@ -14,7 +14,7 @@ dependencies:
   shared_preferences: ^2.0.6
   fluro: ^2.0.3
   fengwuxp_dart_basic:
-    git: git://github.com/fengwuxp/fengwuxp_dart_basic.git
+    git: https://github.com/fengwuxp/fengwuxp_dart_basic.git
   flutter_event_bus: ^0.0.2
 
 dev_dependencies:
