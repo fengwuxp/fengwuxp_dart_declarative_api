@@ -1,8 +1,9 @@
-import 'package:fengwuxp_dart_declarative_api/src/command_support.dart';
 import 'package:fengwuxp_dart_basic/index.dart';
-import 'package:fenguwxp_fluro/fluro.dart';
+import 'package:fengwuxp_dart_declarative_api/src/command_support.dart';
+import 'package:fluro/fluro.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_boost/flutter_boost.dart';
+
 import 'route_command.dart';
 
 final _COMMANDS = [
@@ -66,7 +67,6 @@ class RouteCommandSupport extends CommandSupport {
       } else {
         command.toString();
       }
-
       return _navigateToFlutterView(context, "/$pathname", positionalArguments, namedArguments, command);
     }
 
@@ -78,17 +78,13 @@ class RouteCommandSupport extends CommandSupport {
       // 默认是打开原生的页面
       pathname = "$NATIVE_ROUTE_SCHEMA$pathname";
     }
-    final state = namedArguments[Symbol("state")];
-    final params = namedArguments[Symbol("params")];
-    return FlutterBoost.singleton.open(pathname, urlParams: params, exts: state).then((Map value) {
-      print("did recieve first route result");
-      print("did recieve first route result $value");
-    });
+    final queryParams = namedArguments[Symbol("queryParams")];
+    return BoostNavigator.instance.push(pathname, arguments: queryParams);
   }
 
   // 返回上一页
   void goBack(BuildContext context) {
-    Router.appRouter.pop(context);
+    FluroRouter.appRouter.pop(context);
   }
 
   Future<T> _navigateToFlutterView<T>(BuildContext context, String url, List<dynamic> positionalArguments,
@@ -128,42 +124,46 @@ class RouteCommandSupport extends CommandSupport {
     List<dynamic> parameters = List.of(positionalArguments);
     // 移除 context 参数
     parameters.removeAt(0);
-    return Router.appRouter.navigateTo(context, url,
-        parameters: parameters,
+    final state = namedArguments[Symbol("state")];
+    return FluroRouter.appRouter.navigateTo(context, _handleQueryParams(url, namedArguments["queryParams"]),
         replace: replace,
         clearStack: clearStack,
         transition: transition,
         transitionDuration: transitionDuration,
-        transitionBuilder: transitionBuilder);
+        transitionBuilder: transitionBuilder,
+        routeSettings: RouteSettings(arguments: state));
   }
 
-//  String _handleQueryParams(String uriTemplate, Map<String, dynamic> queryParams) {
-//    // 加入查询参数
-//    var hasQueryString = uriTemplate.contains(QueryStringParser.QUERY_TRING_SEP);
-//    if (hasQueryString) {
-//      var urls = uriTemplate.split(QueryStringParser.QUERY_TRING_SEP);
-//      var map = QueryStringParser.parse(urls[1]);
-//      map.addAll(queryParams);
-//      queryParams = map;
-//      uriTemplate = urls[0];
-//    }
-//    var queryString = QueryStringParser.stringify(queryParams);
-//    StringBuffer url = new StringBuffer();
-//    if (uriTemplate.endsWith(QueryStringParser.SEP)) {
-//      // 以 & 结尾
-//      url.write(uriTemplate);
-//      url.write(queryString);
-//    } else {
-//      if (hasQueryString) {
-//        url.write(uriTemplate);
-//        url.write(QueryStringParser.SEP);
-//        url.write(queryString);
-//      } else {
-//        url.write(uriTemplate);
-//        url.write(QueryStringParser.QUERY_TRING_SEP);
-//        url.write(queryString);
-//      }
-//    }
-//    return url.toString();
-//  }
+  String _handleQueryParams(String uriTemplate, [Map<String, dynamic> queryParams]) {
+    if (queryParams == null || queryParams.isEmpty) {
+      return uriTemplate;
+    }
+    // 加入查询参数
+    var hasQueryString = uriTemplate.contains(QueryStringParser.QUERY_TRING_SEP);
+    if (hasQueryString) {
+      var urls = uriTemplate.split(QueryStringParser.QUERY_TRING_SEP);
+      var map = QueryStringParser.parse(urls[1]);
+      map.addAll(queryParams);
+      queryParams = map;
+      uriTemplate = urls[0];
+    }
+    var queryString = QueryStringParser.stringify(queryParams);
+    StringBuffer url = new StringBuffer();
+    if (uriTemplate.endsWith(QueryStringParser.SEP)) {
+      // 以 & 结尾
+      url.write(uriTemplate);
+      url.write(queryString);
+    } else {
+      if (hasQueryString) {
+        url.write(uriTemplate);
+        url.write(QueryStringParser.SEP);
+        url.write(queryString);
+      } else {
+        url.write(uriTemplate);
+        url.write(QueryStringParser.QUERY_TRING_SEP);
+        url.write(queryString);
+      }
+    }
+    return url.toString();
+  }
 }
