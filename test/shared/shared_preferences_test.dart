@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../built/data_model.dart';
+import '../built/serializers.dart';
 import 'mcok_shared_command_support.dart';
 
 //@TestOn('vm')
@@ -15,9 +16,15 @@ void main() {
     await prefs.setInt('counter', counter);
   });
 
-  test('shared preferences test', () async {
+  test('shared command test', () async {
+    var test = Chat.serializer;
+    var serializerForType = serializers.serializerForType(Chat);
+    print(test == serializerForType);
     MockSharedCommandSupport mockSharedCommandSupport = new MockSharedCommandSupport();
-    mockSharedCommandSupport.setCount(1);
+    var chat = Chat((b) => b..text = "1");
+    var type = serializers.serializerForType(chat.runtimeType);
+    mockSharedCommandSupport.setChat(chat);
+    await mockSharedCommandSupport.getCount();
 //    var chat = Chat((b) => b..text = "");
 //    await mockSharedCommandSupport.setChat(chat);
 //    chat = await mockSharedCommandSupport.getChat();

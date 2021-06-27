@@ -1,5 +1,6 @@
 import 'package:event_bus/event_bus.dart';
 import 'package:fengwuxp_dart_basic/index.dart';
+
 import '../command_support.dart';
 
 final _COMMANDS = ["send", "receive"];
@@ -42,7 +43,7 @@ class EventBusCommandSupport extends CommandSupport {
     });
   }
 
-  factory () {
+  factory() {
     return new EventBusCommandSupport(toLineResolver);
   }
 

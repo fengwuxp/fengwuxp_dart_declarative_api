@@ -18,6 +18,6 @@ abstract class RouteCommand {
   //用另一条路线替换给定键的路线
   static const REPLACE = "replace";
 
-  // 跳转到tab页面的的某个页面
+// 跳转到tab页面的的某个页面
 //  static const SWITCH_TAB = "switchTab";
 }

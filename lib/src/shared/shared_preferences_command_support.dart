@@ -11,48 +11,87 @@ class SharedPreferencesCommandSupport extends CommandSupport {
 
   BuiltJsonSerializers _jsonSerializers;
 
-  SharedPreferencesCommandSupport(BuiltJsonSerializers jsonSerializers,
-      MethodNameCommandResolver methodNameCommandResolver) {
-    this._jsonSerializers = jsonSerializers;
+  Serializers _serializers;
+
+  SharedPreferencesCommandSupport(Serializers serializers, MethodNameCommandResolver methodNameCommandResolver) {
+    this._serializers = serializers;
+    this._jsonSerializers = new BuiltJsonSerializers(_serializers);
     this._methodNameCommandResolver = methodNameCommandResolver;
   }
 
-  factory(BuiltJsonSerializers jsonSerializers,
-      [MethodNameCommandResolver methodNameCommandResolver]) {
+  factory(Serializers serializers, [MethodNameCommandResolver methodNameCommandResolver]) {
     if (methodNameCommandResolver == null) {
-      return new SharedPreferencesCommandSupport(
-          jsonSerializers, toLineResolver);
+      return new SharedPreferencesCommandSupport(serializers, toLineResolver);
     }
-    return new SharedPreferencesCommandSupport(
-        jsonSerializers, methodNameCommandResolver);
+    return new SharedPreferencesCommandSupport(serializers, methodNameCommandResolver);
   }
 
   @override
   noSuchMethod(Invocation invocation) async {
     final memberName = parseSymbolName(invocation.memberName);
-    final commands = this.tryConverterMethodNameCommandResolver(
-        memberName, _COMMANDS, _COMMANDS[0]);
+    final commands = this.tryConverterMethodNameCommandResolver(memberName, _COMMANDS, _COMMANDS[0]);
     var key = this._methodNameCommandResolver(commands[1]);
     key = key.substring(1, key.length).toUpperCase();
+
     final positionalArguments = invocation.positionalArguments;
-    final namedArguments = invocation.namedArguments;
-    final serializer = namedArguments[Symbol("serializer")];
-    final typeArguments = invocation.typeArguments;
     switch (commands[0]) {
       case "get":
-        return this.get(key, typeArguments?.first, serializer);
+        return this.get(key, positionalArguments.first);
       case "set":
-        return this.set(key, positionalArguments?.first, serializer);
+        return this.set(key, positionalArguments.first);
       case "remove":
         return this.remove(key);
     }
   }
 
-  Future set(String key, value, [Serializer serializer]) async {
+  Future<bool> set(String key, value) async {
+    return _storage(value, key);
+  }
+
+  Future<T> get<T>(String key, [Type resultType]) async {
+    SharedPreferences prefs = await getSharedPreferencesInstance();
+    if (resultType == int) {
+      return Future.value(prefs.getInt(key) as T);
+    }
+    if (resultType == double) {
+      return Future.value(prefs.getDouble(key) as T);
+    }
+    if (resultType == bool) {
+      return Future.value(prefs.getBool(key) as T);
+    }
+    if (resultType == String) {
+      return Future.value(prefs.getString(key) as T);
+    }
+
+    var result = prefs.getString(key);
+    if (!StringUtils.hasText(result)) {
+      return Future.error(null);
+    }
+    return this._jsonSerializers.parseObject(result, serializer: _serializerForType(resultType)) as Future<T>;
+  }
+
+  Future<bool> remove(String key) async {
+    return getSharedPreferencesInstance().then((instance) => instance.remove(key));
+  }
+
+  Future<Set<String>> keys() async {
+    return getSharedPreferencesInstance().then((instance) => instance.getKeys());
+  }
+
+  Future<bool> containsKey(String key) async {
+    SharedPreferences prefs = await getSharedPreferencesInstance();
+    return prefs.containsKey(key);
+  }
+
+  Future<SharedPreferences> getSharedPreferencesInstance() async {
+    return await SharedPreferences.getInstance();
+  }
+
+  Future<bool> _storage(value, String key) async {
     if (value == null) {
       return Future.value(true);
     }
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await getSharedPreferencesInstance();
     if (value is int) {
       return prefs.setInt(key, value);
     }
@@ -65,53 +104,13 @@ class SharedPreferencesCommandSupport extends CommandSupport {
     if (value is String) {
       return prefs.setString(key, value);
     }
-    return prefs.setString(
-        key, this._jsonSerializers.toJson(value, serializer: serializer));
+    if (value is Iterable) {
+      return prefs.setString(key, _jsonSerializers.toJson(value));
+    }
+    return prefs.setString(key, this._jsonSerializers.toJson(value, serializer: _serializerForType(value.runtimeType)));
   }
 
-  Future<T> getInner<T>(String methodName,
-      {Type resultType, Serializer serializer}) async {
-    final commands = this.tryConverterMethodNameCommandResolver(
-        methodName, _COMMANDS, _COMMANDS[0]);
-    final key = this._methodNameCommandResolver(commands[1]);
-    return this.get(key, resultType, serializer);
-  }
-
-  Future<T> get<T>(String key, [Type resultType, Serializer serializer]) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (resultType == int) {
-      return prefs.getInt(key) as Future<T>;
-    }
-    if (resultType == double) {
-      return prefs.getDouble(key) as Future<T>;
-    }
-    if (resultType == bool) {
-      return prefs.getBool(key) as Future<T>;
-    }
-    if (resultType == String) {
-      return prefs.getString(key) as Future<T>;
-    }
-
-    var result = await prefs.getString(key);
-    if (!StringUtils.hasText(result)) {
-      return Future.value(null);
-    }
-    return this._jsonSerializers.parseObject(result, serializer: serializer)
-        as Future<T>;
-  }
-
-  Future remove(String key) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.remove(key);
-  }
-
-  Future<Set<String>> keys() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getKeys();
-  }
-
-  Future<bool> containsKey(String key) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.containsKey(key);
+  Serializer<dynamic> _serializerForType(Type resultType) {
+    return _serializers.serializerForType(resultType);
   }
 }
