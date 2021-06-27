@@ -6,7 +6,7 @@ author: fengwuxp
 homepage: https://github.com/fengwuxp/fengwuxp_dart_declarative_api
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -15,7 +15,7 @@ dependencies:
   fluro: ^2.0.3
   fengwuxp_dart_basic:
     git: https://github.com/fengwuxp/fengwuxp_dart_basic.git
-  flutter_event_bus: ^0.0.2
+  event_bus: ^2.0.0
 
 dev_dependencies:
   flutter_test:

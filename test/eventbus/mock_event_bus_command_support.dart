@@ -1,10 +1,14 @@
-
+import 'package:fengwuxp_dart_basic/index.dart';
 import 'package:fengwuxp_dart_declarative_api/index.dart';
-import 'package:flutter_event_bus/flutter_event_bus.dart';
 
 class MockEventBusCommandSupport extends EventBusCommandSupport {
+  MockEventBusCommandSupport() : super(toLineResolver);
 
-  Subscription receiveUserLogin(Responder<bool> responder);
+  EventSubscription receiveUserLogin(EventConsumer<bool> responder);
 
   void sendUserLogin(bool isLogin);
+
+  EventSubscription receiveExample(EventConsumer<String> responder);
+
+  void sendExample(String text);
 }
